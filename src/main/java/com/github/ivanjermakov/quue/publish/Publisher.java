@@ -7,6 +7,7 @@ public interface Publisher<D> {
 
 	void send(@NotNull D data);
 
+	@SuppressWarnings("unchecked")
 	default void send(@NotNull D... data) {
 		for (var d : data) {
 			send(d);

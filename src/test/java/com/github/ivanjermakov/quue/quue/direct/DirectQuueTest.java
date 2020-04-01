@@ -1,6 +1,5 @@
 package com.github.ivanjermakov.quue.quue.direct;
 
-import com.github.ivanjermakov.quue.quue.direct.DirectQuue;
 import org.junit.Test;
 import reactor.test.StepVerifier;
 

@@ -1,7 +1,6 @@
 package com.github.ivanjermakov.quue.quue.cached;
 
 import com.github.ivanjermakov.quue.element.CachedElement;
-import com.github.ivanjermakov.quue.quue.cached.CachedTopicQuue;
 import org.junit.Test;
 import reactor.test.StepVerifier;
 
@@ -14,7 +13,7 @@ import java.util.stream.IntStream;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class CachedTopicQuueTest {
-	private static String TOPIC = "topic";
+	private static final String TOPIC = "topic";
 
 	@Test
 	public void shouldCompleteEmpty() {

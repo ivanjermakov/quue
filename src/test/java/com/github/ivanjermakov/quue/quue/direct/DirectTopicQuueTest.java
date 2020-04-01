@@ -1,6 +1,5 @@
 package com.github.ivanjermakov.quue.quue.direct;
 
-import com.github.ivanjermakov.quue.quue.direct.DirectTopicQuue;
 import org.junit.Test;
 import reactor.test.StepVerifier;
 
@@ -9,7 +8,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class DirectTopicQuueTest {
-	private static String TOPIC = "topic";
+	private static final String TOPIC = "topic";
 
 	@Test
 	public void shouldCompleteEmpty() {

@@ -1,7 +1,6 @@
 package com.github.ivanjermakov.quue.quue.cached;
 
 import com.github.ivanjermakov.quue.element.CachedElement;
-import com.github.ivanjermakov.quue.quue.cached.CachedQuue;
 import org.junit.Test;
 import reactor.test.StepVerifier;
 
