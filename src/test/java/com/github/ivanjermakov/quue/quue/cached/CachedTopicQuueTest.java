@@ -117,8 +117,8 @@ public class CachedTopicQuueTest {
 
 		StepVerifier
 				.create(queue.subscribe(TOPIC))
-				.assertNext(e -> assertThat(ChronoUnit.MILLIS.between(timestamp1, e.timestamp())).isEqualTo(0))
-				.assertNext(e -> assertThat(ChronoUnit.MILLIS.between(timestamp2, e.timestamp())).isEqualTo(0))
+				.assertNext(e -> assertThat(ChronoUnit.SECONDS.between(timestamp1, e.timestamp())).isEqualTo(0))
+				.assertNext(e -> assertThat(ChronoUnit.SECONDS.between(timestamp2, e.timestamp())).isEqualTo(0))
 				.expectComplete()
 				.verify();
 
