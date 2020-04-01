@@ -1,5 +1,6 @@
-package com.github.ivanjermakov.quue.queue;
+package com.github.ivanjermakov.quue.quue.direct;
 
+import com.github.ivanjermakov.quue.quue.direct.DirectTopicQuue;
 import org.junit.Test;
 import reactor.test.StepVerifier;
 
@@ -7,14 +8,15 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class SingleTopicQueueTest {
+public class DirectTopicQuueTest {
+	private static String TOPIC = "topic";
 
 	@Test
 	public void shouldCompleteEmpty() {
-		SingleTopicQueue<Integer> queue = new SingleTopicQueue<>();
+		DirectTopicQuue<String, Integer> queue = new DirectTopicQuue<>();
 
 		StepVerifier verifier = StepVerifier
-				.create(queue.subscribe())
+				.create(queue.subscribe(TOPIC))
 				.expectComplete()
 				.verifyLater();
 
@@ -25,55 +27,55 @@ public class SingleTopicQueueTest {
 
 	@Test
 	public void shouldWriteAndComplete() {
-		SingleTopicQueue<Integer> queue = new SingleTopicQueue<>();
+		DirectTopicQuue<String, Integer> queue = new DirectTopicQuue<>();
 
 		StepVerifier verifier = StepVerifier
-				.create(queue.subscribe())
+				.create(queue.subscribe(TOPIC))
 				.expectNext(1, 2)
 				.expectComplete()
 				.verifyLater();
 
-		queue.send(1);
-		queue.send(2);
-		queue.complete();
+		queue.send(TOPIC, 1);
+		queue.send(TOPIC, 2);
+		queue.complete(TOPIC);
 
 		verifier.verify();
 	}
 
 	@Test
 	public void shouldReadFromMultipleSubscribers() {
-		SingleTopicQueue<Integer> queue = new SingleTopicQueue<>();
+		DirectTopicQuue<String, Integer> queue = new DirectTopicQuue<>();
 
 		List<StepVerifier> verifiers = IntStream
 				.range(0, 10)
 				.boxed()
 				.map(i -> StepVerifier
-						.create(queue.subscribe())
+						.create(queue.subscribe(TOPIC))
 						.expectNext(1, 2)
 						.expectComplete()
 						.verifyLater()
 				)
 				.collect(Collectors.toList());
 
-		queue.send(1);
-		queue.send(2);
-		queue.complete();
+		queue.send(TOPIC, 1);
+		queue.send(TOPIC, 2);
+		queue.complete(TOPIC);
 
 		verifiers.forEach(StepVerifier::verify);
 	}
 
 	@Test
-	public void shouldNotReadWroteBeforeRead() {
-		SingleTopicQueue<Integer> queue = new SingleTopicQueue<>();
-		queue.send(1);
+	public void shouldNotReadWroteAfterRead() {
+		DirectTopicQuue<String, Integer> queue = new DirectTopicQuue<>();
+		queue.send(TOPIC, 1);
 
 		StepVerifier verifier = StepVerifier
-				.create(queue.subscribe())
+				.create(queue.subscribe(TOPIC))
 				.expectNext(2)
 				.expectComplete()
 				.verifyLater();
 
-		queue.send(2);
+		queue.send(TOPIC, 2);
 		queue.complete();
 
 		verifier.verify();
