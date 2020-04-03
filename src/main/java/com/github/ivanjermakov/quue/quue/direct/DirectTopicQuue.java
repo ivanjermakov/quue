@@ -6,10 +6,18 @@ import reactor.core.publisher.Flux;
 
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Base implementation of the {@link TopicQuue}
+ *
+ * @param <D> type of elements containing in the quue
+ */
 public class DirectTopicQuue<T, D> implements TopicQuue<T, D, D> {
 
 	private final ConcurrentHashMap<T, DirectQuue<D>> quueMap;
 
+	/**
+	 * Create new instance of the direct topic quue.
+	 */
 	public DirectTopicQuue() {
 		this.quueMap = new ConcurrentHashMap<>();
 	}
@@ -19,6 +27,11 @@ public class DirectTopicQuue<T, D> implements TopicQuue<T, D, D> {
 		createTopicIfAbsent(topic).send(data);
 	}
 
+	/**
+	 * Subscribe to the data stream, reading specified topic.
+	 *
+	 * @return data stream with elements from specified topic and received after the subscription
+	 */
 	@Override
 	public Flux<D> subscribe(@NotNull T topic) {
 		return createTopicIfAbsent(topic).subscribe();

@@ -7,11 +7,19 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.FluxProcessor;
 import reactor.core.publisher.FluxSink;
 
+/**
+ * Base implementation of the {@link Quue}
+ *
+ * @param <D> type of elements containing in the quue
+ */
 public class DirectQuue<D> implements Quue<D, D> {
 
 	private final FluxProcessor<D, D> processor;
 	private final FluxSink<D> sink;
 
+	/**
+	 * Create new instance of the direct quue.
+	 */
 	public DirectQuue() {
 		processor = DirectProcessor.<D>create().serialize();
 		sink = this.processor.sink();
@@ -24,6 +32,11 @@ public class DirectQuue<D> implements Quue<D, D> {
 		sink.next(data);
 	}
 
+	/**
+	 * Subscribe to the data stream.
+	 *
+	 * @return data stream with elements received after the subscription
+	 */
 	@Override
 	public Flux<D> subscribe() {
 		return processor;
