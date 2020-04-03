@@ -76,7 +76,7 @@ public class CachedTopicQuueTest {
 		queue.send(TOPIC, 1);
 
 		StepVerifier verifier = StepVerifier
-				.create(queue.subscribe(TOPIC))
+				.create(queue.subscribe(TOPIC, 0))
 				.assertNext(e -> assertThat(e.data()).isEqualTo(1))
 				.assertNext(e -> assertThat(e.data()).isEqualTo(2))
 				.expectComplete()
@@ -96,7 +96,7 @@ public class CachedTopicQuueTest {
 		queue.complete();
 
 		StepVerifier
-				.create(queue.subscribe(TOPIC))
+				.create(queue.subscribe(TOPIC, 0))
 				.assertNext(e -> assertThat(e.index()).isEqualTo(0))
 				.assertNext(e -> assertThat(e.index()).isEqualTo(1))
 				.expectComplete()
@@ -116,14 +116,14 @@ public class CachedTopicQuueTest {
 		queue.complete();
 
 		StepVerifier
-				.create(queue.subscribe(TOPIC))
+				.create(queue.subscribe(TOPIC, 0))
 				.assertNext(e -> assertThat(ChronoUnit.SECONDS.between(timestamp1, e.timestamp())).isEqualTo(0))
 				.assertNext(e -> assertThat(ChronoUnit.SECONDS.between(timestamp2, e.timestamp())).isEqualTo(0))
 				.expectComplete()
 				.verify();
 
 		List<CachedElement<Integer>> elements = queue
-				.subscribe(TOPIC)
+				.subscribe(TOPIC, 0)
 				.collectList()
 				.block();
 		assertThat(elements).hasSize(2);

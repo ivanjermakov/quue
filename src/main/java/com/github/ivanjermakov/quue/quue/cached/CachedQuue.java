@@ -9,7 +9,6 @@ import reactor.core.publisher.FluxProcessor;
 import reactor.core.publisher.FluxSink;
 import reactor.core.publisher.ReplayProcessor;
 
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -34,16 +33,20 @@ public class CachedQuue<D> implements Quue<D, CachedElement<D>>, CachedSubscribe
 
 	@Override
 	public Flux<CachedElement<D>> subscribe() {
-		return processor.skip(Duration.ZERO);
+		return processor.skip(sentCount.get());
 	}
 
 	@Override
 	public Flux<CachedElement<D>> subscribe(long offset) {
-		return processor.skip(offset);
+		if (offset >= 0) {
+			return processor.skip(offset);
+		} else {
+			return processor.skip(Math.max(0, sentCount.get() + offset));
+		}
 	}
 
 	@Override
-	public Flux<CachedElement<D>> subscribe(LocalDateTime after) {
+	public Flux<CachedElement<D>> subscribe(@NotNull LocalDateTime after) {
 		return processor.skipUntil(e -> e.timestamp().isAfter(after));
 	}
 

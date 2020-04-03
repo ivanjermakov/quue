@@ -78,7 +78,7 @@ public class CachedQuueTest {
 		queue.complete();
 
 		StepVerifier
-				.create(queue.subscribe())
+				.create(queue.subscribe(0))
 				.assertNext(e -> assertThat(e.data()).isEqualTo(1))
 				.assertNext(e -> assertThat(e.data()).isEqualTo(2))
 				.expectComplete()
@@ -91,7 +91,7 @@ public class CachedQuueTest {
 		queue.send(1);
 
 		StepVerifier verifier = StepVerifier
-				.create(queue.subscribe())
+				.create(queue.subscribe(0))
 				.assertNext(e -> assertThat(e.data()).isEqualTo(1))
 				.assertNext(e -> assertThat(e.data()).isEqualTo(2))
 				.expectComplete()
@@ -111,7 +111,7 @@ public class CachedQuueTest {
 		queue.complete();
 
 		StepVerifier
-				.create(queue.subscribe())
+				.create(queue.subscribe(0))
 				.assertNext(e -> assertThat(e.index()).isEqualTo(0))
 				.assertNext(e -> assertThat(e.index()).isEqualTo(1))
 				.expectComplete()
@@ -131,14 +131,14 @@ public class CachedQuueTest {
 		queue.complete();
 
 		StepVerifier
-				.create(queue.subscribe())
+				.create(queue.subscribe(0))
 				.assertNext(e -> assertThat(ChronoUnit.SECONDS.between(timestamp1, e.timestamp())).isEqualTo(0))
 				.assertNext(e -> assertThat(ChronoUnit.SECONDS.between(timestamp2, e.timestamp())).isEqualTo(0))
 				.expectComplete()
 				.verify();
 
 		List<CachedElement<Integer>> elements = queue
-				.subscribe()
+				.subscribe(0)
 				.collectList()
 				.block();
 		assertThat(elements).hasSize(2);
@@ -156,6 +156,64 @@ public class CachedQuueTest {
 				.assertNext(e -> assertThat(e.data()).isEqualTo(2))
 				.expectComplete()
 				.verify();
+	}
+
+	@Test
+	public void shouldSubscribeWithZeroOffset() {
+		CachedQuue<Integer> queue = new CachedQuue<>();
+		queue.send(1);
+		queue.send(2);
+		queue.complete();
+
+		StepVerifier
+				.create(queue.subscribe(0))
+				.assertNext(e -> assertThat(e.data()).isEqualTo(1))
+				.assertNext(e -> assertThat(e.data()).isEqualTo(2))
+				.expectComplete()
+				.verify();
+	}
+
+	@Test
+	public void shouldSubscribeWithPrefetch() {
+		CachedQuue<Integer> queue = new CachedQuue<>();
+		queue.send(1);
+		queue.send(2);
+
+		StepVerifier verifier = StepVerifier
+				.create(queue.subscribe(-1))
+				.assertNext(e -> assertThat(e.data()).isEqualTo(2))
+				.assertNext(e -> assertThat(e.data()).isEqualTo(3))
+				.assertNext(e -> assertThat(e.data()).isEqualTo(4))
+				.expectComplete()
+				.verifyLater();
+
+		queue.send(3);
+		queue.send(4);
+		queue.complete();
+
+		verifier.verify();
+	}
+
+	@Test
+	public void shouldSubscribeWithGreaterPrefetch() {
+		CachedQuue<Integer> queue = new CachedQuue<>();
+		queue.send(1);
+		queue.send(2);
+
+		StepVerifier verifier = StepVerifier
+				.create(queue.subscribe(-100))
+				.assertNext(e -> assertThat(e.data()).isEqualTo(1))
+				.assertNext(e -> assertThat(e.data()).isEqualTo(2))
+				.assertNext(e -> assertThat(e.data()).isEqualTo(3))
+				.assertNext(e -> assertThat(e.data()).isEqualTo(4))
+				.expectComplete()
+				.verifyLater();
+
+		queue.send(3);
+		queue.send(4);
+		queue.complete();
+
+		verifier.verify();
 	}
 
 	@Test
