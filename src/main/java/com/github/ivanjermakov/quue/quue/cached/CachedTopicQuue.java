@@ -9,10 +9,18 @@ import reactor.core.publisher.Flux;
 import java.time.LocalDateTime;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Implementation of the {@link TopicQuue} supporting caching through {@link CachedTopicSubscriber}
+ *
+ * @param <D> type of elements pushed into the quue
+ */
 public class CachedTopicQuue<T, D> implements TopicQuue<T, D, CachedElement<D>>, CachedTopicSubscriber<T, D> {
 
 	private final ConcurrentHashMap<T, CachedQuue<D>> quueMap;
 
+	/**
+	 * Create new instance of the cached topic quue.
+	 */
 	public CachedTopicQuue() {
 		this.quueMap = new ConcurrentHashMap<>();
 	}

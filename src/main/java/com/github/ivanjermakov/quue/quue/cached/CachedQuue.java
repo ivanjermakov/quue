@@ -12,12 +12,20 @@ import reactor.core.publisher.ReplayProcessor;
 import java.time.LocalDateTime;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class CachedQuue<D> implements Quue<D, CachedElement<D>>, CachedSubscriber<CachedElement<D>> {
+/**
+ * Implementation of the {@link Quue} supporting caching through {@link CachedSubscriber}
+ *
+ * @param <D> type of elements pushed into the quue
+ */
+public class CachedQuue<D> implements Quue<D, CachedElement<D>>, CachedSubscriber<D> {
 
 	private final FluxProcessor<CachedElement<D>, CachedElement<D>> processor;
 	private final FluxSink<CachedElement<D>> sink;
 	private final AtomicLong sentCount;
 
+	/**
+	 * Create new instance of the cached quue.
+	 */
 	public CachedQuue() {
 		processor = ReplayProcessor.<CachedElement<D>>create().serialize();
 		sink = this.processor.sink();
@@ -31,6 +39,11 @@ public class CachedQuue<D> implements Quue<D, CachedElement<D>>, CachedSubscribe
 		sink.next(new CachedElement<>(data, sentCount.getAndIncrement(), LocalDateTime.now()));
 	}
 
+	/**
+	 * Subscribe to the data stream.
+	 *
+	 * @return data stream with elements received after the subscription
+	 */
 	@Override
 	public Flux<CachedElement<D>> subscribe() {
 		return processor.skip(sentCount.get());
