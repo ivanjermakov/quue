@@ -28,22 +28,22 @@ public class CachedTopicQuue<T, D> implements TopicQuue<T, D, CachedElement<D>>,
 
 	@Override
 	public void send(@NotNull T topic, @NotNull D data) {
-		createTopicIfAbsent(topic).send(data);
+		createIfAbsent(topic).send(data);
 	}
 
 	@Override
 	public Flux<CachedElement<D>> subscribe(@NotNull T topic) {
-		return createTopicIfAbsent(topic).subscribe();
+		return createIfAbsent(topic).subscribe();
 	}
 
 	@Override
 	public Flux<CachedElement<D>> subscribe(@NotNull T topic, long offset) {
-		return createTopicIfAbsent(topic).subscribe(offset);
+		return createIfAbsent(topic).subscribe(offset);
 	}
 
 	@Override
 	public Flux<CachedElement<D>> subscribe(@NotNull T topic, LocalDateTime after) {
-		return createTopicIfAbsent(topic).subscribe(after);
+		return createIfAbsent(topic).subscribe(after);
 	}
 
 	@Override
@@ -56,7 +56,7 @@ public class CachedTopicQuue<T, D> implements TopicQuue<T, D, CachedElement<D>>,
 		quueMap.get(topic).complete();
 	}
 
-	private CachedQuue<D> createTopicIfAbsent(T topic) {
+	private CachedQuue<D> createIfAbsent(T topic) {
 		CachedQuue<D> quue = quueMap.get(topic);
 		if (quue == null) {
 			quue = new CachedQuue<>();

@@ -25,17 +25,12 @@ public class DirectTopicQuue<T, D> implements TopicQuue<T, D, D> {
 
 	@Override
 	public void send(@NotNull T topic, @NotNull D data) {
-		createTopicIfAbsent(topic).send(data);
+		createIfAbsent(topic).send(data);
 	}
 
-	/**
-	 * Subscribe to the data stream, reading specified topic.
-	 *
-	 * @return data stream with elements from specified topic and received after the subscription
-	 */
 	@Override
 	public Flux<D> subscribe(@NotNull T topic) {
-		return createTopicIfAbsent(topic).subscribe();
+		return createIfAbsent(topic).subscribe();
 	}
 
 	@Override
@@ -48,7 +43,7 @@ public class DirectTopicQuue<T, D> implements TopicQuue<T, D, D> {
 		quueMap.get(topic).complete();
 	}
 
-	private DirectQuue<D> createTopicIfAbsent(T topic) {
+	private DirectQuue<D> createIfAbsent(T topic) {
 		DirectQuue<D> quue = quueMap.get(topic);
 		if (quue == null) {
 			quue = new DirectQuue<>();
