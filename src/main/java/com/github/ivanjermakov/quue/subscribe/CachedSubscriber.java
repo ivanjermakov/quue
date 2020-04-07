@@ -27,7 +27,7 @@ public interface CachedSubscriber<D> extends Subscriber<CachedElement<D>> {
 	 *                   v                        v
 	 * subscriber ~~~~[a, b]--c--d--|~~~~[a, b, c, d, e, f]--g--|>
 	 *                              ^                           ^
-	 *                            cancel                      complete
+	 *                            cancel                     complete
 	 *
 	 * </code></pre>
 	 *
@@ -35,13 +35,13 @@ public interface CachedSubscriber<D> extends Subscriber<CachedElement<D>> {
 	 * <p>offset 4:</p>
 	 * <pre><code>
 	 *
-	 *     source ---a--b-----c--d---------e---f----------g--|>
+	 *     source ---a--b-----c--d---------e---f-------g--|>
 	 *                   |                        |
 	 *              subscription             subscription
 	 *                   v                        v
-	 * subscriber ~~~~~~[ ]---c--d--|~~~~~~~[c, d, e, f]--g--|>
-	 *                              ^                        ^
-	 *                            cancel                   complete
+	 * subscriber ~~~~~~[ ]---c--d--|~~~~~~~~~~[e, f]--g--|>
+	 *                              ^                     ^
+	 *                            cancel               complete
 	 *
 	 * </code></pre>
 	 *
@@ -55,11 +55,11 @@ public interface CachedSubscriber<D> extends Subscriber<CachedElement<D>> {
 	 *                   v                        v
 	 * subscriber ~~~~[a, b]--c--d--|~~~~~~~~~~[e, f]-----g--|>
 	 *                              ^                        ^
-	 *                            cancel                   complete
+	 *                            cancel                  complete
 	 *
 	 * </code></pre>
 	 *
-	 * @param offset if >= 0 acts as index offset from the first pushed element.
+	 * @param offset if >= 0 acts as index offset, retrieving elements from {@literal offset } index.
 	 *               If < 0 acts as prefetch, retrieving {@literal -offset} last pushed elements before subscription
 	 * @return data stream
 	 */
