@@ -1,8 +1,9 @@
-package com.github.ivanjermakov.quue.quue.cached;
+package com.github.ivanjermakov.quue.quue.checkpoint;
 
 import com.github.ivanjermakov.quue.element.CachedElement;
 import com.github.ivanjermakov.quue.quue.Quue;
 import com.github.ivanjermakov.quue.subscribe.CachedSubscriber;
+import com.github.ivanjermakov.quue.subscribe.CheckpointSubscriber;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.FluxProcessor;
@@ -10,6 +11,7 @@ import reactor.core.publisher.FluxSink;
 import reactor.core.publisher.ReplayProcessor;
 
 import java.time.LocalDateTime;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -17,19 +19,24 @@ import java.util.concurrent.atomic.AtomicLong;
  *
  * @param <D> type of elements pushed into the quue
  */
-public class CachedQuue<D> implements Quue<D, CachedElement<D>>, CachedSubscriber<D> {
+public class CheckpointQuue<D> implements Quue<D, CachedElement<D>>, CheckpointSubscriber<CachedElement<D>> {
 
 	private final FluxProcessor<CachedElement<D>, CachedElement<D>> processor;
 	private final FluxSink<CachedElement<D>> sink;
 	private final AtomicLong sentCount;
+	private final AtomicLong readCount;
+	private final AtomicBoolean connected;
 
 	/**
-	 * Create new instance of the cached quue.
+	 * Create new instance of the checkpoint quue.
 	 */
-	public CachedQuue() {
+	public CheckpointQuue() {
 		processor = ReplayProcessor.<CachedElement<D>>create().serialize();
 		sink = this.processor.sink();
+
 		sentCount = new AtomicLong(0);
+		readCount = new AtomicLong(0);
+		connected = new AtomicBoolean(false);
 
 		processor.log().subscribe();
 	}
@@ -41,21 +48,15 @@ public class CachedQuue<D> implements Quue<D, CachedElement<D>>, CachedSubscribe
 
 	@Override
 	public Flux<CachedElement<D>> subscribe() {
-		return processor.skip(sentCount.get());
-	}
+		System.out.println("new sub");
+		if (connected.get()) throw new IllegalStateException("Only single subscriber is allowed.");
+		connected.set(true);
 
-	@Override
-	public Flux<CachedElement<D>> subscribe(long offset) {
-		if (offset >= 0) {
-			return processor.skip(offset);
-		} else {
-			return processor.skip(Math.max(0, sentCount.get() + offset));
-		}
-	}
-
-	@Override
-	public Flux<CachedElement<D>> subscribe(@NotNull LocalDateTime after) {
-		return processor.skipUntil(e -> e.timestamp().isAfter(after));
+		return processor
+				.skip(readCount.get())
+				.doOnNext((e) -> readCount.incrementAndGet())
+				.doOnCancel(() -> connected.set(false))
+				.doOnTerminate(() -> connected.set(false));
 	}
 
 	@Override

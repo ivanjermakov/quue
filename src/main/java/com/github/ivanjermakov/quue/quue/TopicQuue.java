@@ -9,6 +9,7 @@ import com.github.ivanjermakov.quue.subscribe.TopicSubscriber;
  * @param <T>
  * @param <P>
  * @param <S>
+ * @see Quue
  */
 public interface TopicQuue<T, P, S> extends TopicPublisher<T, P>, TopicSubscriber<T, S> {
 

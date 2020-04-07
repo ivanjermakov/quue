@@ -3,15 +3,20 @@ package com.github.ivanjermakov.quue.subscribe;
 import reactor.core.publisher.Flux;
 
 /**
- * Interface defining reading data from data stream asynchronously.
+ * Interface defining reading data from data stream asynchronously that haven't been read yet.
  *
  * @param <D> type of read data elements
+ * @see Subscriber
+ * @see CachedSubscriber
  */
 @FunctionalInterface
-public interface Subscriber<D> {
+public interface CheckpointSubscriber<D> {
 
 	/**
-	 * Subscribe to the data stream.
+	 * <p>Subscribe to the data stream.</p>
+	 * <p>First subscription will start with all the elements sent into quue.
+	 * Subsequent subscriptions will start with all the elements sent into quue after the previous subscription was
+	 * cancelled.</p>
 	 *
 	 * <pre><code>
 	 *
@@ -19,13 +24,13 @@ public interface Subscriber<D> {
 	 *                   |                        |
 	 *              subscription             subscription
 	 *                   v                        v
-	 * subscriber ~~~~~~[ ]---c--d--|~~~~~~~~~~~~[ ]--g--|>
+	 * subscriber ~~~~~[a, b]-c--d--|~~~~~~~~~~[e, f]-g--|>
 	 *                              ^                    ^
 	 *                            cancel              complete
 	 *
 	 * </code></pre>
 	 *
-	 * @return data stream
+	 * @return data stream with elements received after the last received element
 	 */
 	Flux<D> subscribe();
 }

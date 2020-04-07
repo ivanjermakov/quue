@@ -1,5 +1,6 @@
-package com.github.ivanjermakov.quue.quue.direct;
+package com.github.ivanjermakov.quue.quue.checkpoint;
 
+import com.github.ivanjermakov.quue.element.CachedElement;
 import com.github.ivanjermakov.quue.quue.TopicQuue;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Flux;
@@ -10,16 +11,16 @@ import java.util.concurrent.ConcurrentHashMap;
  * Base implementation of the {@link TopicQuue}
  *
  * @param <D> type of elements containing in the quue
- * @see DirectQuue
+ * @see CheckpointQuue
  */
-public class DirectTopicQuue<T, D> implements TopicQuue<T, D, D> {
+public class CheckpointTopicQuue<T, D> implements TopicQuue<T, D, CachedElement<D>> {
 
-	private final ConcurrentHashMap<T, DirectQuue<D>> quueMap;
+	private final ConcurrentHashMap<T, CheckpointQuue<D>> quueMap;
 
 	/**
-	 * Create new instance of the direct topic quue.
+	 * Create new instance of the checkpoint topic quue.
 	 */
-	public DirectTopicQuue() {
+	public CheckpointTopicQuue() {
 		this.quueMap = new ConcurrentHashMap<>();
 	}
 
@@ -29,7 +30,7 @@ public class DirectTopicQuue<T, D> implements TopicQuue<T, D, D> {
 	}
 
 	@Override
-	public Flux<D> subscribe(@NotNull T topic) {
+	public Flux<CachedElement<D>> subscribe(@NotNull T topic) {
 		return createIfAbsent(topic).subscribe();
 	}
 
@@ -43,10 +44,10 @@ public class DirectTopicQuue<T, D> implements TopicQuue<T, D, D> {
 		quueMap.get(topic).complete();
 	}
 
-	private DirectQuue<D> createIfAbsent(T topic) {
-		DirectQuue<D> quue = quueMap.get(topic);
+	private CheckpointQuue<D> createIfAbsent(T topic) {
+		CheckpointQuue<D> quue = quueMap.get(topic);
 		if (quue == null) {
-			quue = new DirectQuue<>();
+			quue = new CheckpointQuue<>();
 			quueMap.putIfAbsent(topic, quue);
 		}
 		return quue;
