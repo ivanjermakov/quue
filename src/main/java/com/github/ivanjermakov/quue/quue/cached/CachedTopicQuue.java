@@ -13,6 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Implementation of the {@link TopicQuue} supporting caching through {@link CachedTopicSubscriber}
  *
  * @param <D> type of elements pushed into the quue
+ * @see CachedQuue
  */
 public class CachedTopicQuue<T, D> implements TopicQuue<T, D, CachedElement<D>>, CachedTopicSubscriber<T, D> {
 

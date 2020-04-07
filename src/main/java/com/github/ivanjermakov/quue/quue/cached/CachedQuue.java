@@ -40,11 +40,6 @@ public class CachedQuue<D> implements Quue<D, CachedElement<D>>, CachedSubscribe
 		sink.next(new CachedElement<>(data, sentCount.getAndIncrement(), LocalDateTime.now()));
 	}
 
-	/**
-	 * Subscribe to the data stream.
-	 *
-	 * @return data stream with elements received after the subscription
-	 */
 	@Override
 	public Flux<CachedElement<D>> subscribe() {
 		return processor.skip(Duration.ZERO);
@@ -56,7 +51,7 @@ public class CachedQuue<D> implements Quue<D, CachedElement<D>>, CachedSubscribe
 	}
 
 	@Override
-	public Flux<CachedElement<D>> subscribe(LocalDateTime after) {
+	public Flux<CachedElement<D>> subscribe(@NotNull LocalDateTime after) {
 		return processor.skipUntil(e -> e.timestamp().isAfter(after));
 	}
 

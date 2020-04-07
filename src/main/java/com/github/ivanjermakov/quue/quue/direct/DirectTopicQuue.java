@@ -10,6 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Base implementation of the {@link TopicQuue}
  *
  * @param <D> type of elements containing in the quue
+ * @see DirectQuue
  */
 public class DirectTopicQuue<T, D> implements TopicQuue<T, D, D> {
 
